@@ -43,8 +43,6 @@
   },
   "lint-staged": {
     "*.{js,html}": [
-      "eslint --cache --quiet",
-      "prettier --write --no-config"
     ]
   }
 }
