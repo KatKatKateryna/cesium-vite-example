@@ -9,13 +9,12 @@ import * as Cesium from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import "./style.css";
 
-/*
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Viewer("cesiumContainer", {
   terrain: Terrain.fromWorldTerrain(),
 });
-*/
 
+/*
 // Offline viewer:
 const viewer = new Cesium.Viewer("cesiumContainer", {
   baseLayer: Cesium.ImageryLayer.fromProviderAsync(
@@ -26,6 +25,7 @@ const viewer = new Cesium.Viewer("cesiumContainer", {
   baseLayerPicker: false,
   geocoder: false,
 });
+*/
 
 // Fly the camera to San Francisco at the given longitude, latitude, and height.
 viewer.camera.flyTo({
@@ -53,3 +53,12 @@ try {
 } catch (error) {
   console.log(`Error loading tileset: ${error}`);
 }
+
+// ray to place model on terrain
+// https://stackoverflow.com/questions/40715618/placing-models-on-the-terrain
+/*
+  let rayPos = new Cesium.Cartographic(pos.longitude, pos.latitude, pos.height + 100);
+  let rayCartesianPos = ellipsoid.cartographicToCartesian(rayPos);
+  let ray = new Cesium.Ray(rayCartesianPos, Cesium.Cartesian3.negate(rayCartesianPos, new Cesium.Cartesian3()));   
+  let newCoords = viewer.scene.globe.pick(ray, viewer.scene);
+*/
