@@ -16,8 +16,9 @@ import {
 } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import "./style.css";
+import { revealGeoJsonPointByPoint } from "./revealGeoJson.js";
 
-Ion.defaultAccessToken = "";
+Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ZjAzN2M0NS00NmI3LTQ5NWItOTJiYy05ODk5YjUwMzM3YjciLCJpZCI6MjI4OTk2LCJpYXQiOjE3MjEyMjMyMTR9.eSNxaAOutms9FO0HlQG-h8Uv5APtjcrZ3LXmAKKqfJY";
 
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Viewer("cesiumContainer", {
@@ -107,10 +108,10 @@ viewer.camera.flyTo({
   destination: Cartesian3.fromDegrees(-9.1399, 38.7169, 1000), // close to ground
   orientation: {
     heading: CesiumMath.toRadians(0.0),
-    pitch: CesiumMath.toRadians(-30.0),
+    pitch: CesiumMath.toRadians(-40.0),
     roll: 0.0,
   },
-  duration: 3,
+  duration: 1,
   complete: () => {
     // STEP 2: Wait 2 seconds, then zoom out a bit
     setTimeout(() => {
@@ -118,7 +119,7 @@ viewer.camera.flyTo({
         destination: lisbonCenterHigh, // zoomed out
         orientation: {
           heading: CesiumMath.toRadians(10.0),
-          pitch: CesiumMath.toRadians(-25.0),
+          pitch: CesiumMath.toRadians(-45.0),
           roll: 0.0,
         },
         duration: 2,
@@ -149,16 +150,17 @@ viewer.camera.flyTo({
             setTimeout(() => {
               clearInterval(orbitInterval);
               viewer.camera.lookAtTransform(Matrix4.IDENTITY); // reset control
-            }, 5000);
+            }, 4000);
           }, 1000); // wait 1 second after zooming out
         },
       });
-    }, 2000); // wait 2 seconds after first flyTo
+    }, 1000); // wait 2 seconds after first flyTo
   },
 });
 
 
-
+/*
+// show GeoJSON
 // Load from public/data/lisbon-area.geojson
 const geoJsonDataSource = await GeoJsonDataSource.load("/data/lisbon-area.geojson", {
   stroke: Color.ORANGE,
@@ -168,3 +170,6 @@ const geoJsonDataSource = await GeoJsonDataSource.load("/data/lisbon-area.geojso
 });
 
 viewer.dataSources.add(geoJsonDataSource);
+*/
+
+revealGeoJsonPointByPoint("/data/lisbon-area.geojson", viewer);
