@@ -1,13 +1,18 @@
 import {
+  Cesium3DTileStyle,
   Cartesian3,
+  Matrix4,
   Math as CesiumMath,
   Terrain,
   Viewer,
+  UrlTemplateImageryProvider,
   createOsmBuildingsAsync,
   createGooglePhotorealistic3DTileset,
   IonGeocodeProviderType,
   Ion,
   HeadingPitchRange,
+  GeoJsonDataSource, 
+  Color
 } from "cesium";
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import "./style.css";
@@ -17,16 +22,80 @@ Ion.defaultAccessToken = "";
 // Initialize the Cesium Viewer in the HTML element with the `cesiumContainer` ID.
 const viewer = new Viewer("cesiumContainer", {
   //terrain: Terrain.fromWorldTerrain(),
-    globe: false,
+    // globe: false,
     geocoder: IonGeocodeProviderType.GOOGLE,
-});
 
+    // optional: if we don't use 3d tile, we can use image provider for base maps:
+    /*
+    imageryProvider: new UrlTemplateImageryProvider({
+      url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      credit: "© OpenStreetMap contributors",
+      maximumLevel: 22,
+    }),
+    */
+    baseLayerPicker: false, // optional: disable base layer picker to avoid switching back to Bing
+
+    
+    // Disable navigation controls
+    navigationHelpButton: false,  // the little "?" button at bottom right
+    navigationInstructionsInitiallyVisible: false,
+    animation: false,             // timeline animation widget
+    timeline: false,              // timeline bar widget
+    baseLayerPicker: false,       // layer picker dropdown
+    fullscreenButton: false,      // fullscreen button
+    vrButton: false,              // VR button
+    sceneModePicker: false,       // 3D/2D mode picker
+    homeButton: false,            // home/reset button
+    geocoder: false,              // search box (if you want to disable geocoder too)
+
+  });
+
+var customLayer = new UrlTemplateImageryProvider({
+      //url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+      //credit: "© OpenStreetMap contributors",
+      
+      // Dark mode
+      url: "https://basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
+      credit: "© OpenStreetMap contributors, © CARTO",
+      maximumLevel: 19,
+      
+      /*
+      // Topomap
+      url: "https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png",
+      subdomains: ["a", "b", "c"],
+      credit: "© OpenTopoMap, OpenStreetMap contributors",
+      maximumLevel: 17,
+      */
+});
+var imageryLayers = viewer.imageryLayers;
+imageryLayers.addImageryProvider(customLayer );
+
+/*
+// Load Google 3d tiles
 try {
   const tileset = await createGooglePhotorealistic3DTileset();
   viewer.scene.primitives.add(tileset);
 } catch (error) {
   console.log(`Failed to load tileset: ${error}`);
 }
+
+
+// Load OSM Buildings
+createOsmBuildingsAsync().then((osmTileset) => {
+  // Apply a dark style by modifying the tileset's style property
+  osmTileset.style = new Cesium3DTileStyle({
+    color: "color('white')",  // base color black
+    // Optionally, modulate color with height or other properties
+    // e.g., color: "color('black').withAlpha(0.8)"
+  });
+
+  viewer.scene.primitives.add(osmTileset);
+}
+);
+
+*/
+
+
 // Define Lisbon coordinates
 const lisbonCenterXYDegrees = [-9.1399, 38.7169]
 const lisbonCenter = Cartesian3.fromDegrees(-9.1399, 38.7169, 0);
@@ -80,10 +149,22 @@ viewer.camera.flyTo({
             setTimeout(() => {
               clearInterval(orbitInterval);
               viewer.camera.lookAtTransform(Matrix4.IDENTITY); // reset control
-            }, 20000);
+            }, 5000);
           }, 1000); // wait 1 second after zooming out
         },
       });
     }, 2000); // wait 2 seconds after first flyTo
   },
 });
+
+
+
+// Load from public/data/lisbon-area.geojson
+const geoJsonDataSource = await GeoJsonDataSource.load("/data/lisbon-area.geojson", {
+  stroke: Color.ORANGE,
+  fill: Color.ORANGE.withAlpha(0.4),
+  strokeWidth: 0, // no outline
+  clampToGround: true,
+});
+
+viewer.dataSources.add(geoJsonDataSource);
