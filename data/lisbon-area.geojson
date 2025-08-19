@@ -1,0 +1,21 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Lisbon Center Area" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-9.1545, 38.7589, 100],
+            [-9.1345, 38.7589, 100],
+            [-9.1345, 38.7039, 100],
+            [-9.1545, 38.7039, 100],
+            [-9.1545, 38.7589, 100]
+          ]
+        ]
+      }
+    }
+  ]
+}
