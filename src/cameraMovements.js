@@ -4,8 +4,14 @@ import { wait } from "./utils.js";
 import * as Cesium from "cesium";
 
 // Promise-based flyCameraTo
-export function flyCameraTo(viewer, destination, orientation, duration, waitAfterTime) {
-  return new Promise((resolve) => {
+export function flyCameraTo(viewer, destination, orientation, duration, waitAfterTime, waitForTilesLoad) {
+  return new Promise(async (resolve) => {
+    
+    const tileset = viewer.scene.primitives.get(0); // assuming Google tileset is first primitive
+    if (waitForTilesLoad){
+        await waitForVisibleTiles(tileset); // wait until current visible tiles are loaded
+    }
+
     viewer.camera.flyTo({
       destination: destination,
       orientation: orientation,
@@ -34,7 +40,7 @@ export function orbitCamera(viewer, stopTime){
 
         // STEP 1: Get initial heading, pitch, and range from current camera
         const initialHeading = viewer.camera.heading;
-        const initialPitch = viewer.camera.pitch;
+        // const initialPitch = viewer.camera.pitch;
 
         const pitch = viewer.camera.pitch;
         const range = Cesium.Cartesian3.distance(viewer.camera.positionWC, center);
@@ -61,4 +67,27 @@ export function orbitCamera(viewer, stopTime){
     });
 }
 
+export function waitForVisibleTiles(tileset) {
+    
+    // Wait until tiles finish loading
+    console.log(tileset);
+    return new Promise((resolve) => {
+      
+        // Check if all tiles are already loaded
+        if (tileset._tilesLoaded ) {
+            // Tiles already loaded → resolve immediately
+            resolve();
+            return;
+        }
+
+        // Otherwise, wait for the next event
+        // define listener function to be called on event trigger
+        const listener = () => {
+            tileset.allTilesLoaded.removeEventListener(listener); // remove after listener is called, to avoid repeated calls
+            resolve();
+        };
+        // when tiles are loaded, call 'listener' function
+        tileset.allTilesLoaded.addEventListener(listener); 
+    });
+}
 

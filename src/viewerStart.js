@@ -29,6 +29,22 @@ export async function loadViewerAndBaseMap(){
     try {
         const tileset = await Cesium.createGooglePhotorealistic3DTileset();
         viewer.scene.primitives.add(tileset);
+
+        tileset.tileLoad.addEventListener((tile) => {
+            // Optionally, log when high-res tiles are loaded
+            // console.log("Tile loaded:");
+            // console.log("   Bounding volume:", tile.boundingVolume);
+            // console.log("   Content:", tile.content); // actual tile content object
+            // console.log("   Level:", tile.level);    // LOD level
+        });
+        // A 3D tile failed to load: https://tile.googleapis.com/v1/3dtiles/datasets/CgIYAQ/files/AJVsH2wR2M5i36yxHj0k_uHzkpwG88O-7H8W5A6RGYBPJpjbID7bSt0YQ6XHn_Z-rRIY_pZGvzbkvhGwv2pAt_EpEuxTZw-3hd2XVxVG7qxZ0g3j8kO_4AidgqK2fRtFcdX84OQChcCaMse3POEPpWg.glb?session=CO_U_rGdkqf68QEQ8JmkxQY&key=AIzaSyCbO-hnerlEJm2dte3Psf3Ggh3UJTs3Ui0
+        // cesium.js?v=59a37533:128618 
+
+        // Force high-res tiles
+        tileset.maximumScreenSpaceError = 8; // default is 16, smaller = more detail: how much a tile can deviate from ideal. Lower = more triangles, sharper.
+        tileset.skipLevelOfDetail = false;   // disable skipping levels: if true, tiles can skip LOD levels to speed up loading. Set to false for max detail.
+        tileset.dynamicScreenSpaceError = false; // disable dynamic error adjustment: if true, Cesium reduces LOD for performance. Disable for max detail.
+
     } catch (error) {
         console.log(`Failed to load tileset: ${error}`);
     }

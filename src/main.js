@@ -5,7 +5,7 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import "./style.css";
 
 import { revealGeoJsonPointByPoint } from "./revealGeoJson.js";
-import { flyCameraTo, orbitCamera } from "./cameraMovements.js";
+import { flyCameraTo, orbitCamera, waitForVisibleTiles } from "./cameraMovements.js";
 import { loadViewerAndBaseMap } from "./viewerStart.js";
 import { addTextEntities } from "./addText.js";
 import { assembleSequence } from "./assembleFrameSequence.js";
@@ -15,7 +15,9 @@ import {textPositions, geoJsonDataSources} from "./vectorDataSources.js";
 
 /////////////////////////////  load viewer with 2d or 3d tiles
 const viewer = await loadViewerAndBaseMap();
-const firstPassTimeCoeff = 1; // set to 4-5 for final recording
+const onlyFirstFrame = false;
+
+const finalFirstPassCoeff = 5;
 
 /////////////////////////////  add all text and vector data
 addTextEntities(viewer, textPositions);
@@ -48,18 +50,28 @@ const orientationsDegrees = [
 
 ///////////////////////////// Set up camera sequence
 const sequence = assembleSequence(destinationCoords, heights, orientationsDegrees, durations, waitTimes);
+const exportDuration = durations.reduce((a, b) => a + b)
+const startEndAnimationTimes = [finalFirstPassCoeff*exportDuration, finalFirstPassCoeff*exportDuration + exportDuration ]
 
-async function flyThroughSequence(viewer, sequence, timeCoef) {
-  for (const step of sequence) {
-    const { destination, orientation, duration, waitAfterTime } = step;
-    var durationAdjusted = duration * timeCoef;
-    await flyCameraTo(viewer, destination, orientation, durationAdjusted, waitAfterTime);
-  }
-  await orbitCamera(viewer, 10000);
+async function flyThroughSequence(viewer, sequence, timeCoef, onlyFirstFrame, waitForTilesLoad) {
+    for (const step of sequence) {
+        const { destination, orientation, duration, waitAfterTime } = step;
+        var durationAdjusted = duration * timeCoef;
+        await flyCameraTo(viewer, destination, orientation, durationAdjusted, waitAfterTime, waitForTilesLoad);
+    }
+
+    if (onlyFirstFrame == false){
+        await orbitCamera(viewer, 10000);
+    }
 }
 
 ////////////////////////////////////// Run animation: do not modify ///////////////////////////////////////////
-await flyThroughSequence(viewer, sequence, firstPassTimeCoeff);
-await flyThroughSequence(viewer, sequence, 1);
+if (onlyFirstFrame){
+    await flyThroughSequence(viewer, [sequence[0]], 1, onlyFirstFrame, false);
+}
+else {
+    await flyThroughSequence(viewer, sequence, finalFirstPassCoeff, onlyFirstFrame, true);
+    await flyThroughSequence(viewer, sequence, 1, onlyFirstFrame, false);
+}
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
