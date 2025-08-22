@@ -1,7 +1,7 @@
 
 import * as Cesium from "cesium";
 
-Cesium.Ion.defaultAccessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI4ZjAzN2M0NS00NmI3LTQ5NWItOTJiYy05ODk5YjUwMzM3YjciLCJpZCI6MjI4OTk2LCJpYXQiOjE3MjEyMjMyMTR9.eSNxaAOutms9FO0HlQG-h8Uv5APtjcrZ3LXmAKKqfJY";
+Cesium.Ion.defaultAccessToken = "";
 
 export async function loadViewerAndBaseMap(){
     const viewer = new Cesium.Viewer("cesiumContainer", {
