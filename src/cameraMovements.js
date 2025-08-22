@@ -70,7 +70,7 @@ export function orbitCamera(viewer, stopTime){
 export function waitForVisibleTiles(tileset) {
     
     // Wait until tiles finish loading
-    console.log(tileset);
+    // console.log(tileset);
     return new Promise((resolve) => {
       
         // Check if all tiles are already loaded

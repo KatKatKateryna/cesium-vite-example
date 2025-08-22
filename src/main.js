@@ -16,8 +16,7 @@ import {textPositions, geoJsonDataSources} from "./vectorDataSources.js";
 /////////////////////////////  load viewer with 2d or 3d tiles
 const viewer = await loadViewerAndBaseMap();
 const onlyFirstFrame = false;
-
-const finalFirstPassCoeff = 5;
+const firstPassCoeff = 5;
 
 /////////////////////////////  add all text and vector data
 addTextEntities(viewer, textPositions);
@@ -48,10 +47,19 @@ const orientationsDegrees = [
   {heading: 10, pitch: -35, roll: 0},
 ];
 
+///////////////////////////// expose animation times in HTML
+const exportDuration = durations.reduce((a, b) => a + b)
+const startDurationAnimationTimes = [firstPassCoeff*exportDuration, exportDuration ]
+
+const el = document.getElementById('startDurationAnimationTimes');
+el.dataset.value = JSON.stringify(startDurationAnimationTimes); // Assign as JSON string
+// get element in external app:
+// const el = document.getElementById('myElement');
+// const pickedList = JSON.parse(el.dataset.value); // [1,2,3,4,5]
+
+
 ///////////////////////////// Set up camera sequence
 const sequence = assembleSequence(destinationCoords, heights, orientationsDegrees, durations, waitTimes);
-const exportDuration = durations.reduce((a, b) => a + b)
-const startEndAnimationTimes = [finalFirstPassCoeff*exportDuration, finalFirstPassCoeff*exportDuration + exportDuration ]
 
 async function flyThroughSequence(viewer, sequence, timeCoef, onlyFirstFrame, waitForTilesLoad) {
     for (const step of sequence) {
@@ -70,7 +78,7 @@ if (onlyFirstFrame){
     await flyThroughSequence(viewer, [sequence[0]], 1, onlyFirstFrame, false);
 }
 else {
-    await flyThroughSequence(viewer, sequence, finalFirstPassCoeff, onlyFirstFrame, true);
+    await flyThroughSequence(viewer, sequence, firstPassCoeff, onlyFirstFrame, true);
     await flyThroughSequence(viewer, sequence, 1, onlyFirstFrame, false);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
